@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beauty Ingredient Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ecbbcb 0%, #d4a5b8 50%, #c391a5 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 25px 50px rgba(195, 145, 165, 0.3);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #8B4B6B;
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #8B4B6B, #B8738D);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #6B4C57;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .skin-type-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .skin-type-btn {
+            background: linear-gradient(135deg, #f8e8ed, #f0d4e0);
+            border: 2px solid #d4a5b8;
+            padding: 12px 20px;
+            border-radius: 25px;
+            color: #8B4B6B;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .skin-type-btn:hover {
+            background: linear-gradient(135deg, #d4a5b8, #c391a5);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(139, 75, 107, 0.3);
+        }
+
+        .skin-type-btn.active {
+            background: linear-gradient(135deg, #8B4B6B, #B8738D);
+            color: white;
+            border-color: #8B4B6B;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 35px;
+            margin-bottom: 30px;
+        }
+
+        .upload-section {
+            background: linear-gradient(135deg, #f8e8ed, #f0d4e0);
+            border-radius: 20px;
+            padding: 35px;
+            text-align: center;
+            border: 3px dashed #d4a5b8;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(139, 75, 107, 0.1) 0%, transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+
+        .upload-section:hover {
+            border-color: #8B4B6B;
+            background: linear-gradient(135deg, #f0d4e0, #e8c2d4);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(139, 75, 107, 0.2);
+        }
+
+        .upload-area {
+            cursor: pointer;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .upload-text {
+            color: #8B4B6B;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .upload-subtext {
+            color: #B8738D;
+            font-size: 1rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .preview-section {
+            background: linear-gradient(135deg, #f8e8ed, #f0d4e0);
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 350px;
+            border: 2px solid #e8c2d4;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(139, 75, 107, 0.2);
+            margin-bottom: 15px;
+        }
+
+        .image-info {
+            text-align: center;
+            color: #8B4B6B;
+            font-size: 0.9rem;
+        }
+
+        .placeholder {
+            color: #B8738D;
+            font-style: italic;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .analyze-section {
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, #8B4B6B, #B8738D);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analyze-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .analyze-btn:hover::before {
+            left: 100%;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(139, 75, 107, 0.4);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            background: linear-gradient(135deg, #f8e8ed, #f0d4e0);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 25px;
+            border-left: 5px solid #8B4B6B;
+            box-shadow: 0 10px 25px rgba(139, 75, 107, 0.1);
+        }
+
+        .results-header {
+            color: #8B4B6B;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .ingredient-list {
+            margin-bottom: 25px;
+        }
+
+        .ingredient-item {
+            background: white;
+            margin: 10px 0;
+            padding: 15px 20px;
+            border-radius: 12px;
+            border-left: 4px solid #d4a5b8;
+            box-shadow: 0 3px 10px rgba(139, 75, 107, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .ingredient-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(139, 75, 107, 0.2);
+        }
+
+        .ingredient-name {
+            font-weight: 600;
+            color: #8B4B6B;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .ingredient-effect {
+            color: #6B4C57;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .skin-compatibility {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .compatible {
+            background: #d4f4d4;
+            color: #2d7d2d;
+        }
+
+        .caution {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .avoid {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 50px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f0d4e0;
+            border-top: 5px solid #8B4B6B;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .feature {
+            background: linear-gradient(135deg, rgba(139, 75, 107, 0.1), rgba(184, 115, 141, 0.1));
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            border: 2px solid rgba(139, 75, 107, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(139, 75, 107, 0.2);
+            border-color: #8B4B6B;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .feature h3 {
+            color: #8B4B6B;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+        }
+
+        .feature p {
+            color: #6B4C57;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .personalized-tips {
+            background: linear-gradient(135deg, #8B4B6B, #B8738D);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .tips-header {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .tip-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            backdrop-filter: blur(5px);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .skin-type-selector {
+                gap: 10px;
+            }
+
+            .skin-type-btn {
+                padding: 10px 15px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💄 SkinInspire Beauty Ingredient Analyzer</h1>
+            <p>Discover what's in your beauty products and how they affect your unique skin type</p>
+        </div>
+
+        <div class="skin-type-selector">
+            <button class="skin-type-btn" data-type="oily">🌟 Oily Skin</button>
+            <button class="skin-type-btn" data-type="dry">🌸 Dry Skin</button>
+            <button class="skin-type-btn" data-type="combination">🌺 Combination</button>
+            <button class="skin-type-btn" data-type="sensitive">🌿 Sensitive</button>
+            <button class="skin-type-btn" data-type="mature">✨ Mature Skin</button>
+        </div>
+
+        <div class="main-content">
+            <div class="upload-section">
+                <div class="upload-area" onclick="document.getElementById('productImage').click()">
+                    <div class="upload-icon">📸</div>
+                    <div class="upload-text">Upload Product Image</div>
+                    <div class="upload-subtext">Take a photo of your beauty product label</div>
+                </div>
+                <input type="file" id="productImage" class="file-input" accept="image/*">
+            </div>
+
+            <div class="preview-section" id="previewSection">
+                <div class="placeholder">
+                    🖼️ Product image will appear here
+                    <br><br>
+                    <small>Make sure the ingredient list is clearly visible</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="analyze-section">
+            <button class="analyze-btn" id="analyzeBtn" onclick="analyzeProduct()">
+                🔬 Analyze Ingredients & Get Personalized Recommendations
+            </button>
+        </div>
+
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <div class="results-header">📋 Ingredient Analysis Results</div>
+            <div id="analysisResults"></div>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🧪</div>
+                <h3>Ingredient Breakdown</h3>
+                <p>Get detailed analysis of each ingredient and its effects on your skin type</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">👤</div>
+                <h3>Personalized Recommendations</h3>
+                <p>Receive customized advice based on your specific skin type and concerns</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⚠️</div>
+                <h3>Safety Alerts</h3>
+                <p>Identify potentially harmful ingredients and allergens for your skin</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">💡</div>
+                <h3>Smart Insights</h3>
+                <p>Learn about ingredient interactions and optimal usage recommendations</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentImage = null;
+        let selectedSkinType = null;
+
+        // Handle skin type selection
+        document.querySelectorAll('.skin-type-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.skin-type-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedSkinType = this.dataset.type;
+            });
+        });
+
+        // Handle file upload
+        document.getElementById('productImage').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 20 * 1024 * 1024) {
+                    alert('Image too large! Please select an image smaller than 20MB.');
+                    return;
+                }
+
+                try {
+                    const previewSection = document.getElementById('previewSection');
+                    previewSection.innerHTML = '<div class="placeholder">📤 Processing image...</div>';
+                    
+                    const compressedImage = await compressImage(file);
+                    currentImage = compressedImage;
+                    displayImage(compressedImage, file.name, file.size);
+                } catch (error) {
+                    console.error('Image processing error:', error);
+                    alert('Error processing image. Please try a different image.');
+                }
+            }
+        });
+
+        function displayImage(src, name, size) {
+            const previewSection = document.getElementById('previewSection');
+            const sizeKB = (size / 1024).toFixed(1);
+            previewSection.innerHTML = `
+                <img src="${src}" alt="Product image" class="preview-image">
+                <div class="image-info">
+                    📄 ${name}<br>
+                    📊 ${sizeKB} KB
+                </div>
+            `;
+        }
+
+        async function analyzeProduct() {
+            if (!currentImage) {
+                alert('Please upload a product image first! 📸');
+                return;
+            }
+
+            if (!selectedSkinType) {
+                alert('Please select your skin type first! 👤');
+                return;
+            }
+
+            const resultsSection = document.getElementById('resultsSection');
+            const analysisResults = document.getElementById('analysisResults');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+
+            // Show loading state
+            resultsSection.style.display = 'block';
+            analysisResults.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <span>🔬 Analyzing ingredients for ${selectedSkinType} skin...</span>
+                </div>
+            `;
+            analyzeBtn.disabled = true;
+
+            try {
+                // Simulate AI analysis (replace with actual API call)
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                
+                const mockAnalysis = generateMockAnalysis(selectedSkinType);
+                analysisResults.innerHTML = mockAnalysis;
+            } catch (error) {
+                console.error('Analysis error:', error);
+                analysisResults.innerHTML = `
+                    <div style="color: #8B4B6B; text-align: center; padding: 20px;">
+                        <strong>❌ Analysis Error</strong><br>
+                        Unable to analyze the product. Please try again.
+                    </div>
+                `;
+            } finally {
+                analyzeBtn.disabled = false;
+            }
+        }
+
+        function generateMockAnalysis(skinType) {
+            const ingredients = [
+                {
+                    name: "Hyaluronic Acid",
+                    effect: "Powerful humectant that attracts and retains moisture, providing deep hydration.",
+                    compatibility: "compatible"
+                },
+                {
+                    name: "Retinol",
+                    effect: "Promotes cell turnover and collagen production, reduces fine lines and acne.",
+                    compatibility: skinType === 'sensitive' ? 'caution' : 'compatible'
+                },
+                {
+                    name: "Salicylic Acid",
+                    effect: "BHA that exfoliates and unclogs pores, effective for acne-prone skin.",
+                    compatibility: skinType === 'dry' ? 'caution' : 'compatible'
+                },
+                {
+                    name: "Fragrance",
+                    effect: "Adds pleasant scent but can cause irritation and allergic reactions.",
+                    compatibility: skinType === 'sensitive' ? 'avoid' : 'caution'
+                }
+            ];
+
+            const tips = {
+                oily: [
+                    "This product's salicylic acid will help control excess oil production",
+                    "Use in the evening to avoid sun sensitivity",
+                    "Follow with a lightweight, oil-free moisturizer"
+                ],
+                dry: [
+                    "The hyaluronic acid will provide excellent hydration for your skin type",
+                    "Apply on damp skin for better absorption",
+                    "Use a heavier moisturizer afterwards to seal in moisture"
+                ],
+                sensitive: [
+                    "Start with patch testing due to active ingredients",
+                    "Use every other day initially to build tolerance",
+                    "Avoid combining with other strong actives"
+                ],
+                combination: [
+                    "Apply only to oily T-zone areas if using salicylic acid",
+                    "Use different products for different face zones",
+                    "Monitor how each area responds"
+                ],
+                mature: [
+                    "Retinol will help with anti-aging concerns",
+                    "Use sunscreen during the day when using this product",
+                    "Expect results after 6-8 weeks of consistent use"
+                ]
+            };
+
+            let html = '<div class="ingredient-list">';
+            
+            ingredients.forEach(ingredient => {
+                const compatibilityClass = ingredient.compatibility;
+                const compatibilityText = {
+                    compatible: '✅ Perfect Match',
+                    caution: '⚠️ Use with Caution',
+                    avoid: '❌ Consider Avoiding'
+                }[compatibilityClass];
+
+                html += `
+                    <div class="ingredient-item">
+                        <div class="ingredient-name">${ingredient.name}</div>
+                        <div class="ingredient-effect">${ingredient.effect}</div>
+                        <span class="skin-compatibility ${compatibilityClass}">${compatibilityText}</span>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+
+            html += `
+                <div class="personalized-tips">
+                    <div class="tips-header">💡 Personalized Tips for ${skinType.charAt(0).toUpperCase() + skinType.slice(1)} Skin</div>
+                    ${tips[skinType].map(tip => `<div class="tip-item">• ${tip}</div>`).join('')}
+                </div>
+            `;
+
+            return html;
+        }
+
+        function compressImage(file, maxWidth = 1024, quality = 0.8) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                img.onload = () => {
+                    let { width, height } = img;
+                    
+                    if (width > maxWidth || height > maxWidth) {
+                        const ratio = Math.min(maxWidth / width, maxWidth / height);
+                        width *= ratio;
+                        height *= ratio;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        // Drag and drop functionality
+        const uploadSection = document.querySelector('.upload-section');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadSection.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadSection.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadSection.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            uploadSection.style.borderColor = '#8B4B6B';
+            uploadSection.style.background = 'linear-gradient(135deg, #f0d4e0, #e8c2d4)';
+        }
+
+        function unhighlight(e) {
+            uploadSection.style.borderColor = '#d4a5b8';
+            uploadSection.style.background = 'linear-gradient(135deg, #f8e8ed, #f0d4e0)';
+        }
+
+        uploadSection.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                document.getElementById('productImage').files = files;
+                document.getElementById('productImage').dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+    </script>
+</body>
+</html>
